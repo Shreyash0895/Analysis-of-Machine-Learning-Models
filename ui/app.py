@@ -1,4 +1,4 @@
-import streamlit as st
+"""import streamlit as st
 import pandas as pd
 from main import run_pipeline
 
@@ -22,5 +22,6 @@ if uploaded_file and TARGET_COLUMN:
     st.subheader("📊 Model Comparison Results")
     st.dataframe(results_df)
 
-    st.success("✅ Analysis completed successfully")
+    st.success("✅ Analysis completed successfully")"""
+
 
