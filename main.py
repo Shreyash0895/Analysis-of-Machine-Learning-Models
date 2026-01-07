@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.data_validation import validate_dataset
+from src.data_validation import validate_dataframe
 from src.preprocessing import preprocess_data
 from src.model_training import get_models
 from src.energy_metrics import measure_performance
@@ -19,6 +19,7 @@ def run_pipeline(df, target_column):
 
     # continue with preprocessing, training, evaluation
     return df
+
 
 
 
