@@ -23,3 +23,4 @@ if uploaded_file and TARGET_COLUMN:
     st.dataframe(results_df)
 
     st.success("✅ Analysis completed successfully")
+
