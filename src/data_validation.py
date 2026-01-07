@@ -8,3 +8,5 @@ def validate_dataframe(df, target_column):
         raise ValueError(f"❌ Target column '{target_column}' not found")
 
     return df
+
+
