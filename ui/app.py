@@ -1,31 +1,25 @@
 import streamlit as st
 import pandas as pd
-import sys
-import os
-
-# Fix path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from main import run_pipeline
 
-st.title("🌱 Green AI Model Comparison")
+st.title("🌱 Green AI Model Comparison Dashboard")
 
-uploaded_file = st.file_uploader("Upload CSV Dataset", type=["csv"])
+uploaded_file = st.file_uploader(
+    "📂 Upload your dataset (CSV)",
+    type=["csv"]
+)
 
-if uploaded_file:
+TARGET_COLUMN = st.text_input("Enter Target Column Name")
+
+if uploaded_file and TARGET_COLUMN:
     df = pd.read_csv(uploaded_file)
-    st.write("Dataset Preview")
+
+    st.subheader("📄 Dataset Preview")
     st.dataframe(df.head())
 
-    target_column = st.selectbox("Select Target Column", df.columns)
+    results_df = run_pipeline(df, TARGET_COLUMN)
 
-    if st.button("Run Analysis"):
-        # Save uploaded file
-        os.makedirs("data/raw", exist_ok=True)
-        file_path = "data/raw/user_dataset.csv"
-        df.to_csv(file_path, index=False)
+    st.subheader("📊 Model Comparison Results")
+    st.dataframe(results_df)
 
-        results_df = run_pipeline(file_path, target_column)
-
-        st.subheader("Results")
-        st.dataframe(results_df)
+    st.success("✅ Analysis completed successfully")
