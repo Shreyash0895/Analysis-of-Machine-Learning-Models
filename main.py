@@ -12,42 +12,14 @@ FILE_PATH = os.path.join(BASE_DIR, "data", "AQI.csv")"""
 
 def run_pipeline(file_path, target_column):
 
-    # 1️⃣ Load & validate dataset
-    df = validate_dataset(file_path, target_column)
+  from src.data_validation import validate_dataframe
 
-    # 2️⃣ Detect task type
-    task_type = detect_task_type(df, target_column)
-    print(f"Detected task type: {task_type}")
+def run_pipeline(df, target_column):
+    df = validate_dataframe(df, target_column)
 
-    # 3️⃣ Preprocess data
-    X_train, X_test, y_train, y_test = preprocess_data(df, target_column)
-
-    # 4️⃣ Load task-specific models
-    models = get_models(task_type)
-
-    results = []
-
-    for name, model in models.items():
-        print(f"Training {name}...")
-
-        metrics = measure_performance(
-            model,
-            X_train, y_train,
-            X_test, y_test,
-            task_type
-        )
-        metrics["Model"] = name
-        results.append(metrics)
-
-    return pd.DataFrame(results)
+    # continue with preprocessing, training, evaluation
+    return results_df
 
 
-# Run directly
-if __name__ == "__main__":
-    FILE_PATH = "data/raw/user_dataset.csv"
-    TARGET_COLUMN = "AQI"   # user-selected
-
-    results_df = run_pipeline(FILE_PATH, TARGET_COLUMN)
-    print(results_df)
 
 
