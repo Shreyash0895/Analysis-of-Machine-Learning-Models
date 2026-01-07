@@ -18,7 +18,8 @@ def run_pipeline(df, target_column):
     df = validate_dataframe(df, target_column)
 
     # continue with preprocessing, training, evaluation
-    return results_df
+    return df
+
 
 
 
