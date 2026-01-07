@@ -7,8 +7,8 @@ from src.energy_metrics import measure_performance
 from src.task_detection import detect_task_type
 import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FILE_PATH = os.path.join(BASE_DIR, "data", "AQI.csv")
+"""BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FILE_PATH = os.path.join(BASE_DIR, "data", "AQI.csv")"""
 
 def run_pipeline(file_path, target_column):
 
@@ -49,4 +49,5 @@ if __name__ == "__main__":
 
     results_df = run_pipeline(FILE_PATH, TARGET_COLUMN)
     print(results_df)
+
 
