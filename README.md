@@ -174,5 +174,7 @@ This project is intended for educational and internship purposes only.
 
 🚀 Live Demo
 
-     Streamlit App:
-     https://analysis-of-machine-learning-models-hw8rnj79ykptnbb2vs2gid.streamlit.app/
+🔗 Streamlit App:
+
+https://analysis-of-machine-learning-models-hw8rnj79ykptnbb2vs2gid.streamlit.app/
+
