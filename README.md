@@ -164,9 +164,15 @@ Always run the UI from the project root directory
 🗣️ One-Line Project Summary
 
 A dataset-agnostic Green AI framework that compares machine learning models based on accuracy and energy efficiency using an interactive user interface.
+
 -------------------------------------------------------------------------
 
 📄 License
 
 
 This project is intended for educational and internship purposes only.
+
+🚀 Live Demo
+
+     Streamlit App:
+     https://analysis-of-machine-learning-models-hw8rnj79ykptnbb2vs2gid.streamlit.app/
