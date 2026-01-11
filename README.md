@@ -176,5 +176,6 @@ This project is intended for educational and internship purposes only.
 
 🔗 Streamlit App:
 
-https://analysis-of-machine-learning-models-hw8rnj79ykptnbb2vs2gid.streamlit.app/
+https://analysis-of-machine-learning-models-ehzag6fnl339432oj8ifoj.streamlit.app/
+
 
