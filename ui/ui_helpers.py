@@ -1,118 +1,117 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
 import streamlit as st
-import pandas as pd
-import sys
 import os
 
-# Page Config
-st.set_page_config(page_title="Green AI Dashboard", layout="centered")
 
-# Path to access backend
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Function to save and show plots
+def save_and_show(fig, filename):
+    os.makedirs("results/graphs", exist_ok=True)
+    fig.savefig(f"results/graphs/{filename}", bbox_inches="tight")
+    st.pyplot(fig)
+    plt.close(fig)
 
-from main import run_pipeline
-from ui.ui_helpers import (
-    plot_target_distribution,
-    plot_missing_values,
-    plot_correlation,
-    plot_accuracy,
-    plot_energy,
-    plot_tradeoff,
-)
 
-# AI Model Ranking
-def add_model_ranking(results_df):
+# Target Distribution Graph
+def plot_target_distribution(df, target):
+    st.subheader("📊 Target Variable Distribution")
+
+    fig, ax = plt.subplots(figsize=(5,4))
+
+    if df[target].nunique() <= 10:
+        df[target].value_counts().plot(kind="bar", ax=ax, color="#4CAF50")
+        ax.set_ylabel("Count")
+    else:
+        ax.hist(df[target], bins=30, color="#2196F3")
+        ax.set_ylabel("Frequency")
+
+    ax.set_xlabel(target)
+    ax.set_title("Target Distribution")
+
+    save_and_show(fig, "target_distribution.png")
+
+
+# Missing Values Graph
+def plot_missing_values(df):
+    missing = df.isnull().sum()
+    missing = missing[missing > 0]
+
+    if len(missing) == 0:
+        st.info("No missing values found.")
+        return
+
+    st.subheader("🧹 Missing Values Overview")
+
+    fig, ax = plt.subplots(figsize=(5,4))
+    missing.plot(kind="bar", ax=ax, color="#FF9800")
+    ax.set_ylabel("Count")
+    ax.set_title("Missing Values per Column")
+
+    save_and_show(fig, "missing_values.png")
+
+
+# Correlation Heatmap Graph
+def plot_correlation(df):
+    numeric_df = df.select_dtypes(include="number")
+    if numeric_df.shape[1] < 2:
+        return
+
+    st.subheader("🔗 Feature Correlation Heatmap")
+
+    fig, ax = plt.subplots(figsize=(6,5))
+    sns.heatmap(numeric_df.corr(), cmap="coolwarm", ax=ax)
+    ax.set_title("Correlation Heatmap")
+
+    save_and_show(fig, "correlation_heatmap.png")
+
+
+# Accuracy Comparison Graph
+def plot_accuracy(results_df):
     metric = "R2 Score" if "R2 Score" in results_df.columns else "Accuracy"
 
-    acc_norm = (results_df[metric] - results_df[metric].min()) / (
-        results_df[metric].max() - results_df[metric].min()
-    )
+    st.subheader("🎯 Model Accuracy Comparison")
 
-    time_norm = (results_df["Training Time (s)"] - results_df["Training Time (s)"].min()) / (
-        results_df["Training Time (s)"].max() - results_df["Training Time (s)"].min()
-    )
+    fig, ax = plt.subplots(figsize=(5,4))
+    ax.bar(results_df["Model"], results_df[metric], color="#673AB7")
+    ax.set_ylabel(metric)
+    ax.set_title("Accuracy Comparison")
+    plt.xticks(rotation=20)
 
-    results_df["Green AI Score"] = (0.7 * acc_norm) + (0.3 * (1 - time_norm))
+    save_and_show(fig, "accuracy_comparison.png")
 
-    ranked_df = results_df.sort_values("Green AI Score", ascending=False)
 
-    st.subheader("🥇 Green AI Model Ranking")
-    st.dataframe(ranked_df[["Model", "Green AI Score"]])
+# Energy Consumption Comparison Graph
+def plot_energy(results_df):
+    st.subheader("⚡ Energy Consumption (Training Time)")
 
-    return ranked_df
+    fig, ax = plt.subplots(figsize=(5,4))
+    ax.bar(results_df["Model"], results_df["Training Time (s)"], color="#F44336")
+    ax.set_ylabel("Training Time (s)")
+    ax.set_title("Energy Usage Comparison")
+    plt.xticks(rotation=20)
 
-# Title
-st.title("🌱 Green AI Model Comparison")
+    save_and_show(fig, "energy_comparison.png")
 
-# Upload Dataset
-uploaded_file = st.file_uploader("Upload CSV Dataset", type=["csv"])
 
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
+# Trade-off Graph
+def plot_tradeoff(results_df):
+    metric = "R2 Score" if "R2 Score" in results_df.columns else "Accuracy"
 
-# Dataset Preview 
-    st.subheader("📄 Dataset Preview")
-    st.dataframe(df.head())
-    st.caption(f"📌 Dataset contains {df.shape[0]} rows and {df.shape[1]} columns")
+    st.subheader("🌱 Accuracy vs Energy Trade-off")
 
-    target_column = st.selectbox("🎯 Select Target Column", df.columns)
+    fig, ax = plt.subplots(figsize=(5,4))
+    ax.scatter(results_df["Training Time (s)"], results_df[metric], color="#009688")
 
-# Dataset Visualization for feature and target analysis
-    with st.expander("📊 Dataset Visualizations"):
-        plot_target_distribution(df, target_column)
-        plot_missing_values(df)
-        plot_correlation(df)
-
-# Run Analysis
-    if st.button("🚀 Run Model Analysis"):
-        os.makedirs("data/raw", exist_ok=True)
-        file_path = "data/raw/user_dataset.csv"
-        df.to_csv(file_path, index=False)
-
-        results_df = run_pipeline(file_path, target_column)
-
-# Comparison Table
-        st.subheader("📈 Model Comparison Results")
-        st.dataframe(results_df)
-
-# Recommendation Cards 
-        metric = "R2 Score" if "R2 Score" in results_df.columns else "Accuracy"
-
-        best_accuracy = results_df.loc[results_df[metric].idxmax()]
-        best_energy = results_df.loc[results_df["Training Time (s)"].idxmin()]
-
-        st.subheader("🏆 Model Recommendation")
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.metric(
-                label="🎯 Best Accuracy Model",
-                value=best_accuracy["Model"],
-                delta=f"{metric}: {round(best_accuracy[metric], 3)}"
-            )
-
-        with col2:
-            st.metric(
-                label="⚡ Most Energy Efficient Model",
-                value=best_energy["Model"],
-                delta=f"Time: {round(best_energy['Training Time (s)'], 3)} s"
-            )
-
-# Green AI Ranking Results
-        ranked_df = add_model_ranking(results_df)
-
-# Model Performance Visualizations 
-        with st.expander("📉 Model Performance Visualizations"):
-            plot_accuracy(results_df)
-            plot_energy(results_df)
-            plot_tradeoff(results_df)
-
-# Download Report
-        csv = results_df.to_csv(index=False).encode("utf-8")
-        st.download_button(
-            label="📥 Download Model Comparison Report",
-            data=csv,
-            file_name="green_ai_model_report.csv",
-            mime="text/csv"
+    for i, model in enumerate(results_df["Model"]):
+        ax.text(
+            results_df["Training Time (s)"][i],
+            results_df[metric][i],
+            model
         )
 
-        st.success("✅ Analysis completed. You can download the report above.")
+    ax.set_xlabel("Training Time (s)")
+    ax.set_ylabel(metric)
+    ax.set_title("Accuracy vs Energy")
+
+    save_and_show(fig, "accuracy_vs_energy.png")
+
